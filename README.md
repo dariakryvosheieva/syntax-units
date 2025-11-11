@@ -33,8 +33,8 @@ Using a functional localization approach inspired by cognitive neuroscience, we 
 * `benchmarks/`: Code for converting minimal pair benchmarks into the appropriate format for unit localization
   * `processed/`: Converted data files
 
-* `cache/`: Stores the localized units' masks.
+* `cache/`: Storage for the localized units' masks
  
-* `t-test/`: Utility for running one-sample and two-sample t-tests.
+* `t-test/`: Utility for running one-sample and two-sample t-tests
 
 ## Citation
