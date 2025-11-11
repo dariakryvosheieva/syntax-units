@@ -1,0 +1,8 @@
+,filler_gap_3_sentential_embeddings_no_gap,filler_gap_4_sentential_embeddings_no_gap,filler_gap_subject_extraction_with_gap,filler_gap_object_extraction_no_gap,filler_gap_subject_extraction_no_gap,filler_gap_extraction_from_pp_no_gap,filler_gap_object_extraction_with_gap,filler_gap_3_sentential_embeddings_with_gap,filler_gap_extraction_from_pp_with_gap,filler_gap_4_sentential_embeddings_with_gap
+wh_questions_subject_gap,99.0,90.0,2.0,180.0,249.0,249.0,0.0,1.0,0.0,0.0
+wh_vs_that_with_gap,3.0,2.0,195.0,0.0,0.0,0.0,311.0,209.0,404.0,160.0
+wh_vs_that_no_gap_long_distance,252.0,212.0,0.0,391.0,443.0,441.0,0.0,0.0,0.0,0.0
+wh_vs_that_with_gap_long_distance,2.0,1.0,209.0,0.0,0.0,0.0,334.0,216.0,402.0,182.0
+wh_questions_object_gap,62.0,54.0,0.0,112.0,103.0,111.0,1.0,1.0,1.0,2.0
+wh_questions_subject_gap_long_distance,82.0,86.0,0.0,147.0,211.0,210.0,0.0,1.0,0.0,2.0
+wh_vs_that_no_gap,317.0,267.0,0.0,452.0,522.0,510.0,0.0,0.0,0.0,0.0

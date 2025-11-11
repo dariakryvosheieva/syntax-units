@@ -1,0 +1,7 @@
+torch==2.6.0
+transformers==4.50.0
+pandas==2.2.0
+numpy==1.26.4
+scipy==1.13.1
+matplotlib==3.9.4
+minicons==0.3.31
