@@ -47,7 +47,7 @@ if __name__ == "__main__":
     model_name = os.path.basename(model_name)
 
     results = []
-    for suite in os.listdir(f"local_datasets/processed/{dataset}"):
+    for suite in os.listdir(f"benchmarks/processed/{dataset}"):
         language_overlap = np.sum(
             cross_validation(
                 model_name,

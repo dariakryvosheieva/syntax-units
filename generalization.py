@@ -37,7 +37,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 def get_networks(dataset, category):
     return [
         suite[:-4]
-        for suite in os.listdir(f"local_datasets/processed/{dataset}")
+        for suite in os.listdir(f"benchmarks/processed/{dataset}")
         if suite[:-4] in BLIMP[category] or suite.startswith(category)
     ]
 

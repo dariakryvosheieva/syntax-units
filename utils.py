@@ -18,7 +18,7 @@ def cross_validation(
         percentage,
     ):
 
-    length = len(pd.read_csv(f"local_datasets/processed/{dataset}/{network}.csv"))
+    length = len(pd.read_csv(f"benchmarks/processed/{dataset}/{network}.csv"))
     sents_per_fold = length // num_folds
 
     language_intersection = None
@@ -29,7 +29,7 @@ def cross_validation(
 
         language_mask = localize(
             model_id=model_name,
-            dirpath=f"local_datasets/processed/{dataset}",
+            dirpath=f"benchmarks/processed/{dataset}",
             network=network,
             pooling=pooling,
             model=model,
@@ -67,7 +67,7 @@ def cross_overlap(
 
     language_mask_1 = localize(
         model_id=model_name,
-        dirpath=f"local_datasets/processed/{dataset_1}",
+        dirpath=f"benchmarks/processed/{dataset_1}",
         network=network_1,
         pooling=pooling,
         model=model,
@@ -82,7 +82,7 @@ def cross_overlap(
 
     language_mask_2 = localize(
         model_id=model_name,
-        dirpath=f"local_datasets/processed/{dataset_2}",
+        dirpath=f"benchmarks/processed/{dataset_2}",
         network=network_2,
         pooling=pooling,
         model=model,
@@ -108,7 +108,7 @@ def evaluate(
     ):
     n_correct = 0
     scr = IncrementalLMScorer(model=model, device=device, tokenizer=tokenizer)
-    whole_data = pd.read_csv(f"local_datasets/processed/{dataset}/{network}.csv", dtype=str)
+    whole_data = pd.read_csv(f"benchmarks/processed/{dataset}/{network}.csv", dtype=str)
     if second_half:
         start = len(whole_data) // 2
         data = whole_data[start : ].reset_index(drop=True)

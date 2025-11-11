@@ -7,7 +7,7 @@ import pandas as pd
 from transformers import AutoTokenizer
 
 from localize import localize, extract_batch
-from local_datasets.local_datasets import LangLocDataset
+from benchmarks.benchmarks import LangLocDataset
 from model_utils import get_layer_names, get_hidden_dim
 from utils import random_mask_from_remaining, evaluate
 
@@ -37,7 +37,7 @@ def global_activation_mean(
         from torch.utils.data import DataLoader
         import torch
 
-        dirpath = f"local_datasets/processed/{dataset}"
+        dirpath = f"benchmarks/processed/{dataset}"
         df = pd.read_csv(f"{dirpath}/{network}.csv")
         start_idx = max(0, start_idx)
         end_idx = min(len(df), end_idx)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
     accs_none, accs_language, accs_random = {}, {}, {}
 
-    for suite in os.listdir(f"local_datasets/processed/{dataset}"):
+    for suite in os.listdir(f"benchmarks/processed/{dataset}"):
         network = suite[:-4]
 
         model.set_language_selective_mask(None)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
             model, tokenizer, dataset, network, device, second_half=True
         )
 
-        length = len(pd.read_csv(f"local_datasets/processed/{dataset}/{network}.csv"))
+        length = len(pd.read_csv(f"benchmarks/processed/{dataset}/{network}.csv"))
         
         if ablation_type == "mean":
              global_mu = global_activation_mean(
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         language_mask = localize(
             model_id=model_name,
-            dirpath=f"local_datasets/processed/{dataset}",
+            dirpath=f"benchmarks/processed/{dataset}",
             network=network,
             pooling=pooling,
             model=model,
@@ -206,7 +206,7 @@ if __name__ == "__main__":
 
     with open(f"{savedir}/ablation_{dataset}_{model_name}_{percentage}%.txt", "w") as f:
         to_write = ""
-        for suite in os.listdir(f"local_datasets/processed/{dataset}"):
+        for suite in os.listdir(f"benchmarks/processed/{dataset}"):
             network = suite[:-4]
             to_write += f"{network}: {accs_none[network]:.3f}/{accs_language[network]:.3f}/{accs_random[network]:.3f}\n"
         to_write += f"Average performance (original model): {np.mean(list(accs_none.values()))}\n"

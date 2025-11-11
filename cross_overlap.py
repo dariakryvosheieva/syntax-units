@@ -47,10 +47,10 @@ if __name__ == "__main__":
     model.eval()
 
     networks_1 = [
-        suite[:-4] for suite in os.listdir(f"local_datasets/processed/{dataset_1}")
+        suite[:-4] for suite in os.listdir(f"benchmarks/processed/{dataset_1}")
     ]
     networks_2 = [
-        suite[:-4] for suite in os.listdir(f"local_datasets/processed/{dataset_2}")
+        suite[:-4] for suite in os.listdir(f"benchmarks/processed/{dataset_2}")
     ]
 
     language_matrix = new_matrix(networks_1, networks_2)

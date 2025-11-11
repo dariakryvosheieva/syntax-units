@@ -60,7 +60,7 @@ def cross_overlap_grand(dataset, percentage=1, seed=42, pooling="last-token"):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    networks = [fn[:-4] for fn in os.listdir(f"local_datasets/processed/{dataset}") if fn.endswith(".csv")]
+    networks = [fn[:-4] for fn in os.listdir(f"benchmarks/processed/{dataset}") if fn.endswith(".csv")]
     networks = sorted(networks)
 
     results = {}
@@ -80,7 +80,7 @@ def cross_overlap_grand(dataset, percentage=1, seed=42, pooling="last-token"):
 
         first_mask = localize(
             base_name,
-            f"local_datasets/processed/{dataset}",
+            f"benchmarks/processed/{dataset}",
             networks[0],
             pooling,
             model,
@@ -97,7 +97,7 @@ def cross_overlap_grand(dataset, percentage=1, seed=42, pooling="last-token"):
         for net in networks:
             mask = localize(
                 base_name,
-                f"local_datasets/processed/{dataset}",
+                f"benchmarks/processed/{dataset}",
                 net,
                 pooling,
                 model,

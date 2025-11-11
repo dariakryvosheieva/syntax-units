@@ -48,7 +48,7 @@ if __name__ == "__main__":
     model.eval()
 
     networks = []
-    for root, dirs, files in os.walk("local_datasets/processed/multiblimp"):
+    for root, dirs, files in os.walk("benchmarks/processed/multiblimp"):
         for file in files:
             if file == f"{phenomenon}.csv":
                 networks.append(os.path.basename(root))

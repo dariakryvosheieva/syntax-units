@@ -9,7 +9,7 @@ import transformers
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from scipy.stats import ttest_ind, false_discovery_control
-from local_datasets.local_datasets import LangLocDataset
+from benchmarks.benchmarks import LangLocDataset
 
 
 # To cache the language mask

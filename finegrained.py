@@ -47,7 +47,7 @@ if __name__ == "__main__":
     layer_names = get_layer_names(model_name, parts="submodules")
 
     results = {}
-    dirpath = f"local_datasets/processed/{dataset}"
+    dirpath = f"benchmarks/processed/{dataset}"
 
     for suite in os.listdir(dirpath):
         network = suite[:-4]
