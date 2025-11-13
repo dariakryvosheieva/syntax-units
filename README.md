@@ -28,7 +28,7 @@ Using a functional localization approach inspired by cognitive neuroscience, we 
   * `cv-blimp-gemma/`: Cross-validation result for Gemma on BLiMP (upper subplot of Fig. 20)
   
 * `multilingual/`: Data and figures for the multilingual experiments (Sec. 4.3)
-  * `rublimp/`: Experiments with the RuBLiMP benchmark (left subplot of Fig.6, upper subplot of Fig. 7, middle subplot of Fig. 20)
+  * `rublimp/`: Experiments with the RuBLiMP benchmark (left subplot of Fig. 6, upper subplot of Fig. 7, middle subplot of Fig. 20)
   * `sling/`: Experiments with the SLING benchmark (right subplot of Fig. 6, lower subplot of Fig. 7, lower subplot of Fig. 20)
   * `multiblimp/`: Experiment with the MultiBLiMP benchmark (Fig. 8)
   
