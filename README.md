@@ -11,6 +11,8 @@ Using a functional localization approach inspired by cognitive neuroscience, we 
 ## Repository Structure
 
 * `/`: Experiment scripts and plotting scripts
+  * Experiment script example: `python ablation.py --ablation-type zero --model-name google/gemma-3-4b-pt --dataset blimp --percentage 1.0 --savedir english/ablation` runs the zero-ablation experiment with the Gemma model, BLiMP benchmark, and 1% unit localization. The result (txt file) will be saved in the `english/ablation` directory.
+  * Plotting script example: `python ablation_plot.py --dataset BLiMP --directory english/ablation --display error-bars` plots average ablation effects over *all* ablation result files in the `english/ablation` directory. Change `--display` to `model-markers` to get a figure with model markers instead of error bars.
 
 * `english/`: Data and figures for the English experiments
   * `cross-validation/`: Main cross-validation experiment (Sec. 4.1, Fig. 1)
@@ -30,11 +32,14 @@ Using a functional localization approach inspired by cognitive neuroscience, we 
   * `sling/`: Experiments with the SLING benchmark (right subplot of Fig. 6, lower subplot of Fig. 7, lower subplot of Fig. 20)
   * `multiblimp/`: Experiment with the MultiBLiMP benchmark (Fig. 8)
   
-* `benchmarks/`: Code for converting minimal pair benchmarks into the appropriate format for unit localization
-  * `processed/`: Converted data files
-
-* `cache/`: Storage for the localized units' masks
+* `benchmarks/`: Scripts for converting minimal pair benchmarks into the appropriate format for unit localization
+  * `processed/`: Converted datasets
+  * `raw/`: Original datasets were placed here
  
 * `t-test/`: Utility for running one-sample and two-sample t-tests
+
+* `cache/`: Storage for the localized units' masks
+
+* `models/`: Modeling files for the LLMs considered in the paper (modified from respective files in the [transformers repo](https://github.com/huggingface/transformers/tree/main/src/transformers/models) to support ablation)
 
 ## Citation
