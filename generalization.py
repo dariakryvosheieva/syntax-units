@@ -142,7 +142,7 @@ def get_inner_overlap(
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("--percentage", type=float, default=1)
+    argparser.add_argument("--percentage", type=float, default=1.0)
     argparser.add_argument("--seed", type=int, default=12)
     argparser.add_argument(
         "--pooling", type=str, default="last-token", choices=["last-token", "mean"]

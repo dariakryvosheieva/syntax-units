@@ -22,7 +22,7 @@ if __name__ == "__main__":
         required=True,
         choices=["SV-P", "SV-#", "SV-G", "SP-P", "SP-#", "SP-G"],
     )
-    argparser.add_argument("--percentage", type=float, default=1)
+    argparser.add_argument("--percentage", type=float, default=1.0)
     argparser.add_argument("--seed", type=int, default=42)
     argparser.add_argument(
         "--pooling", type=str, default="last-token", choices=["last-token", "mean"]

@@ -55,7 +55,7 @@ def synt_lex_overlap():
     return np.mean(means)
 
 
-def cross_overlap_grand(dataset, percentage=1, seed=42, pooling="last-token"):
+def cross_overlap_grand(dataset, percentage=1.0, seed=42, pooling="last-token"):
     np.random.seed(seed)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -123,7 +123,7 @@ def zero_mean_correlation():
 
     for model_name in MODEL_NAMES:
         zero_ablation_scores = {}
-        with open(f"english/ablation/ablation_blimp_{model_name}_1%.txt", "r") as f:
+        with open(f"english/ablation/ablation_blimp_{model_name}_1.0%.txt", "r") as f:
             lines = [line.split() for line in f.readlines()]
             for line in lines:
                 if len(line) == 2:
@@ -131,7 +131,7 @@ def zero_mean_correlation():
                     original, top, random = map(float, line[1].split("/"))
                     zero_ablation_scores[suite[:-1]] = top - original
         mean_ablation_scores = {}
-        with open(f"english/mean-ablation/ablation_blimp_{model_name}_1%.txt", "r") as f:
+        with open(f"english/mean-ablation/ablation_blimp_{model_name}_1.0%.txt", "r") as f:
             lines = [line.split() for line in f.readlines()]
             for line in lines:
                 if len(line) == 2:

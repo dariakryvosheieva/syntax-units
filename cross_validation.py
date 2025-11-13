@@ -19,7 +19,7 @@ if __name__ == "__main__":
     argparser.add_argument("--model-name", type=str, required=True)
     argparser.add_argument("--dataset", type=str, required=True)
     argparser.add_argument("--savedir", type=str, required=True)
-    argparser.add_argument("--percentage", type=float, default=1)
+    argparser.add_argument("--percentage", type=float, default=1.0)
     argparser.add_argument("--num-folds", type=int, default=2)
     argparser.add_argument("--seed", type=int, default=42)
     argparser.add_argument(

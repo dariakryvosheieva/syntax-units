@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
 dist_path = Path("multilingual/multiblimp/language_pair_distances.csv")
-overlap_path = Path("multilingual/multiblimp/cross-overlap_multiblimp_SV-#_gemma-3-4b-pt_1%.csv")
+overlap_path = Path("multilingual/multiblimp/cross-overlap_multiblimp_SV-#_gemma-3-4b-pt_1.0%.csv")
 out_path = "multilingual/multiblimp/overlap_vs_syntactic_distance"
 
 dist_df = pd.read_csv(dist_path)
