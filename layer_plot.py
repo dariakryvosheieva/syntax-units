@@ -1,163 +1,165 @@
-import glob
-import re
-from typing import Dict, List, Tuple, Optional
+import os
+from collections import defaultdict
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 from categories import CATEGORIES
-from plot_utils import pretty_category_name
+from model_utils import get_num_blocks
 
 
-Unit = Tuple[int, int, str, int]
+DATA_DIR = "english/finegrained"
+FNAME_TEMPLATE = "finegrained_blimp_{model_name}_1.0%.txt"
+BLIMP_CATS = list(CATEGORIES["blimp"].keys())
 
-
-MODEL_COLORS = [
-    "#e41a1c",
-    "#3faa3b",
-    "#923f9e",
-    "#fc7cbf",
-    "#e4d100",
-    "#9d4c1d",
-    "#999999",
+MODELS = [
+    ("GPT-2", "gpt2-xl"),
+    ("Falcon", "Falcon3-3B-Base"),
+    ("Llama", "Llama-3.2-3B"),
+    ("Gemma", "gemma-3-4b-pt"),
+    ("DeepSeek", "deepseek-llm-7b-base"),
+    ("Phi", "Phi-4-mini-instruct"),
+    ("Mistral", "Mistral-7B-v0.3"),
 ]
+MODELS_SORTED = sorted(MODELS, key=lambda x: x[0].lower())
 
 
-def parse_units_file(path: str) -> Dict[str, List[Unit]]:
-    phenomena: Dict[str, List[Unit]] = {}
-    current: Optional[str] = None
-    unit_line_re = re.compile(r"^\s*(\d+)\s+(\d+)\s+([A-Za-z]+)\s+(\d+)\s*$")
+suite2cat = {}
+for cat, suites in CATEGORIES["blimp"].items():
+    for s in suites:
+        suite2cat[s] = cat
 
-    with open(path, "r", encoding="utf-8") as f:
-        for raw in f:
-            line = raw.strip()
+
+def parse_model_file(path):
+    cat_units = defaultdict(set)
+    current_suite = None
+
+    with open(path, "r") as f:
+        for line in f:
+            line = line.strip()
             if not line:
                 continue
-            m = unit_line_re.match(line)
-            if m is None:
-                current = line
-                if current not in phenomena:
-                    phenomena[current] = []
+
+            parts = line.split()
+            if not parts[0].isdigit():
+                current_suite = parts[0]
                 continue
-            if current is None:
-                current = "UNKNOWN"
-                if current not in phenomena:
-                    phenomena[current] = []
-            idx = int(m.group(1))
-            layer_idx = int(m.group(2))
-            kind = m.group(3).lower()
-            idx_within_layer = int(m.group(4))
-            phenomena[current].append((idx, layer_idx, kind, idx_within_layer))
-    return phenomena
+
+            _, layer_str, block_type, pos_str = parts
+            layer_idx = int(layer_str)
+            pos_idx = int(pos_str)
+
+            if current_suite in suite2cat:
+                cat = suite2cat[current_suite]
+                cat_units[cat].add((layer_idx, block_type, pos_idx))
+
+    return cat_units
 
 
-def compute_layer_shares_for_file(path: str):
-    ph = parse_units_file(path)
+n_models = len(MODELS_SORTED)
 
-    max_layer = -1
-    for items in ph.values():
-        for _, layer_idx, kind, _ in items:
-            if kind in ("mlp", "attn"):
-                if layer_idx > max_layer:
-                    max_layer = layer_idx
-    L = max_layer + 1 if max_layer >= 0 else 0
-    _, dataset, model_name, perc_str = path.split("_")
+category_counts = {cat: [None] * n_models for cat in BLIMP_CATS}
+model_num_layers = []
 
-    if L <= 0:
-        return {"model": model_name, "x": np.array([]), "L": 0, "per_ph": {}}
+for m_idx, (pretty_name, model_name) in enumerate(MODELS_SORTED):
+    fname = FNAME_TEMPLATE.format(model_name=model_name)
+    path = os.path.join(DATA_DIR, fname)
+    print(f"Reading {path}")
 
-    per_ph: Dict[str, np.ndarray] = {}
-    for name, items in ph.items():
-        counts = np.zeros(L, dtype=int)
-        total = 0
-        for _, layer_idx, kind, _ in items:
-            if kind in ("mlp", "attn"):
-                if 0 <= layer_idx < L:
+    cat_units = parse_model_file(path)
+    n_layers = get_num_blocks(model_name)
+    model_num_layers.append(n_layers)
+
+    for cat in BLIMP_CATS:
+        units = cat_units.get(cat, set())
+        if not units:
+            counts = np.zeros(n_layers, dtype=int)
+        else:
+            counts = np.zeros(n_layers, dtype=int)
+            for layer_idx, block_type, pos_idx in units:
+                if 0 <= layer_idx < n_layers:
                     counts[layer_idx] += 1
-                    total += 1
-        if total > 0:
-            per_ph[name] = counts.astype(float) / float(total)
-
-    x = (np.arange(L, dtype=float) + 0.5) / float(L)
-    return {"model": model_name, "x": x, "L": L, "per_ph": per_ph}
+        category_counts[cat][m_idx] = counts
 
 
-def plot_blimp_categories_layer_shares(
-    models_data: List[dict],
-    categories: Dict[str, List[str]],
-):
-    colors = {}
-    for i, md in enumerate(models_data):
-        colors[md["model"]] = MODEL_COLORS[i % len(MODEL_COLORS)]
+n_rows = 6
+n_cols = 2
 
-    cat_names = list(categories.keys())
-    fig, axes = plt.subplots(6, 2, figsize=(10, 25), sharey=True)
-    axes = axes.ravel()
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(8, 20), sharex=True, sharey=True)
 
-    model_legend_handles = {}
+model_labels = [pretty for pretty, _ in MODELS_SORTED]
 
-    all_phens = [p for plist in categories.values() for p in plist]
+x_ticks = [0.0, 0.25, 0.5, 0.75, 1.0]
 
-    for ai, cat in enumerate(cat_names):
-        ax = axes[ai]
-        phens = categories[cat]
+last_im = None
 
-        for md in models_data:
-            model = md["model"]
-            x = md["x"]
-            if x.size == 0:
-                continue
-            for ph in phens:
-                y = md["per_ph"].get(ph)
-                if y is None:
-                    continue
-                (line,) = ax.plot(
-                    x,
-                    y,
-                    linewidth=1.2,
-                    alpha=0.9,
-                    color=colors[model],
-                )
-                if model not in model_legend_handles:
-                    model_legend_handles[model] = line
+for i, cat in enumerate(BLIMP_CATS):
+    ax = axes[i // n_cols, i % n_cols]
+    norm = LogNorm(vmin=1e-2, vmax=100.0)
+    cmap = plt.get_cmap("Greys").copy()
+    cmap.set_bad(color="white")
 
-        ax.set_title(pretty_category_name(cat), fontsize=10)
-        ax.set_xlim(0.0, 1.0)
-        ax.set_ylim(0.0, 0.85)
-        ax.set_xlabel("Relative Depth")
-        if ai % 4 == 0:
-            ax.set_ylabel("Share of selective units")
-        ax.grid(True, axis="both", linestyle=":", alpha=0.35)
+    for m_idx in range(n_models):
+        counts = category_counts[cat][m_idx]
+        if counts is None:
+            continue
+        total = float(np.nansum(counts))
+        if total <= 0:
+            arr = np.zeros((1, counts.shape[0]), dtype=float)
+        else:
+            arr = (counts / total * 100.0)[np.newaxis, :]
+        arr[arr == 0] = np.nan
+        extent = [0.0, 1.0, m_idx - 0.5, m_idx + 0.5]
+        im = ax.imshow(
+            arr,
+            aspect="auto",
+            origin="upper",
+            interpolation="nearest",
+            norm=norm,
+            cmap=cmap,
+            extent=extent,
+        )
+        last_im = im
 
-    handles = [model_legend_handles[m] for m in sorted(model_legend_handles)]
-    labels = sorted(model_legend_handles)
-    fig.legend(
-        handles,
-        labels,
-        loc="center left",
-        bbox_to_anchor=(0.08, 0.91),
-        frameon=True,
-        title="Models",
-    )
+    ax.set_yticks(np.arange(n_models))
+    ax.set_yticklabels(model_labels)
 
-    fig.suptitle("Relative Depth Breakdown of Responsive Units", fontsize=14, x=0.45)
-    fig.tight_layout(rect=[0, 0, 0.88, 0.98])
+    ax.set_xlim(0.0, 1.0)
+    ax.set_xticks(x_ticks)
+    ax.set_xticklabels([f"{x:.2g}" for x in x_ticks])
 
-    fig.savefig("english/finegrained/layers.png", bbox_inches="tight")
-    fig.savefig("english/finegrained/layers.pdf", bbox_inches="tight")
-    plt.close(fig)
+    for xt in x_ticks:
+        ax.axvline(xt, linewidth=0.3, color="k", alpha=0.2)
 
+    pretty_cat = cat.replace("_", " ")
+    if pretty_cat.lower() == "npi licensing":
+        pretty_cat = "NPI Licensing"
+    elif pretty_cat.lower() == "subject verb agreement":
+        pretty_cat = "S-V Agreement"
+    elif pretty_cat.lower() == "determiner noun agreement":
+        pretty_cat = "DET-N Agreement"
+    elif pretty_cat.lower() == "control raising":
+        pretty_cat = "Control/Raising"
+    elif pretty_cat.lower() == "filler gap":
+        pretty_cat = "Filler-Gap"
+    else:
+        pretty_cat = pretty_cat.title()
+    ax.set_title(pretty_cat, fontsize=10)
 
-def main():
-    file_paths = sorted(glob.glob("english/finegrained/*.txt"))
+    if i // n_cols == n_rows - 1:
+        ax.set_xlabel("Relative layer depth")
+    if i % n_cols == 0:
+        ax.set_ylabel("Model")
 
-    models_data = [compute_layer_shares_for_file(p) for p in file_paths]
+cax = fig.add_axes([0.88, 0.4, 0.02, 0.15])
+cbar = fig.colorbar(last_im, cax=cax)
+cbar.set_label("Percentage of units")
+cbar.set_ticks([0.1, 1, 10, 100])
 
-    plot_blimp_categories_layer_shares(
-        models_data=models_data,
-        categories=CATEGORIES["blimp"],
-    )
-
-
-if __name__ == "__main__":
-    main()
+fig.suptitle(
+    "Relative Depth Breakdown of Responsive Units", fontsize=14, y=0.96, x=0.49
+)
+fig.tight_layout(rect=[0, 0, 0.85, 0.96])
+plt.savefig("english/finegrained/layers.pdf")
+plt.savefig("english/finegrained/layers.png", dpi=300)

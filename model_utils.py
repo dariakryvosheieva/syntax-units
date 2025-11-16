@@ -1,7 +1,6 @@
 def get_num_blocks(model_name):
     return {
         "gpt2-xl": 48,
-        "mGPT": 24,
         "Llama-3.2-3B": 28,
         "gemma-3-4b-pt": 34,
         "deepseek-llm-7b-base": 30,
@@ -14,7 +13,6 @@ def get_num_blocks(model_name):
 def get_hidden_dim(model_name):
     return {
         "gpt2-xl": 1600,
-        "mGPT": 2048,
         "Llama-3.2-3B": 3072,
         "gemma-3-4b-pt": 2560,
         "deepseek-llm-7b-base": 4096,
