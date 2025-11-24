@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
+from model_utils import get_num_blocks, get_hidden_dim
+
 dist_path = Path("multilingual/multiblimp/language_pair_distances.csv")
 overlap_path = Path("multilingual/multiblimp/cross-overlap_multiblimp_SV-#_gemma-3-4b-pt_1.0%.csv")
 out_path = "multilingual/multiblimp/overlap_vs_syntactic_distance"
@@ -53,6 +55,12 @@ merged = overlap_long.merge(
 mask = ~np.isclose(merged["syntactic_distance"].to_numpy(), 0.0, atol=1e-12)
 merged = merged.loc[mask].reset_index(drop=True)
 
+MODEL_NAME = "gemma-3-4b-pt"
+TARGET = 1.0
+TARGET_SET_SIZE = 0.01 * get_num_blocks(MODEL_NAME) * get_hidden_dim(MODEL_NAME)
+
+merged["overlap_pct"] = merged["overlap"] / TARGET_SET_SIZE * 100
+
 remaining_langs = pd.unique(merged[['lang_a', 'lang_b']].values.ravel())
 num_remaining = remaining_langs.size
 print(f"Number of unique languages: {num_remaining}")
@@ -60,7 +68,7 @@ print(f"Number of unique languages: {num_remaining}")
 fig, ax = plt.subplots(figsize=(7, 5), dpi=140)
 ax.scatter(
     1 - merged["syntactic_distance"],
-    merged["overlap"],
+    merged["overlap_pct"],
     alpha=0.8,
     edgecolor="black",
     linewidth=0.5,
@@ -70,12 +78,12 @@ ax.scatter(
 )
 
 ax.set_xlabel("Syntactic similarity", fontsize=12)
-ax.set_ylabel("Top 1% unit overlap", fontsize=12)
+ax.set_ylabel("Percentage of units", fontsize=12)
 
 from scipy.stats import spearmanr
 
 x = 1 - merged["syntactic_distance"].to_numpy()
-y = merged["overlap"].to_numpy()
+y = merged["overlap_pct"].to_numpy()
 n = len(merged)
 
 slope, intercept, r, p_lin, stderr = linregress(x, y)
@@ -90,6 +98,8 @@ title = "Overlap vs. syntactic similarity (Gemma, MultiBLiMP SV-#)"
 if np.isfinite(rho):
     title += f"\nSpearman ρ={rho:.3f} (p={pval:.3g}); n={n}"
 ax.set_title(title, pad=10, fontsize=14)
+
+ax.set_ylim(-5, 80)
 
 ax.grid(True, linestyle=":", linewidth=0.6, alpha=0.5)
 fig.tight_layout()
