@@ -104,6 +104,7 @@ def load_model_matrices(
     lang_tgt: str,
     row_order: List[str],
     col_order: List[str],
+    percentage: float,
 ) -> Dict[str, pd.DataFrame]:
     prefix = f"cross-overlap_{lang_src}_{lang_tgt}_"
     suffix = "%.csv"
@@ -129,9 +130,9 @@ def load_model_matrices(
         df = df.reindex(index=row_order, columns=col_order)
 
         total_units = get_num_blocks(model_name) * get_hidden_dim(model_name)
-        one_percent_size = int(total_units * 0.01)
+        percentage_units = int(total_units * percentage / 100)
 
-        df = df / one_percent_size * 100
+        df = df / percentage_units * 100
 
         matrices[model_name] = df
 

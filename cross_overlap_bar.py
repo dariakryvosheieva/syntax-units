@@ -87,6 +87,7 @@ def plot_horizontal_bars(
     directory: str,
     title: str,
     add_model_markers: bool,
+    percentage: float,
     width: float = 0.45,
     x_lim: int = 100,  # 60
     val_d: int = 8,  # 1
@@ -199,8 +200,8 @@ def plot_horizontal_bars(
         )
 
     fig.tight_layout()
-    fig.savefig(f"{directory}/cross_overlap_{dataset.lower()}.png", dpi=300)
-    fig.savefig(f"{directory}/cross_overlap_{dataset.lower()}.pdf")
+    fig.savefig(f"{directory}/cross_overlap_{dataset.lower()}_{percentage}%.png", dpi=300)
+    fig.savefig(f"{directory}/cross_overlap_{dataset.lower()}_{percentage}%.pdf")
 
 
 def main():
@@ -209,6 +210,7 @@ def main():
     p.add_argument("--directory", default=f"english/cross-overlap")
     p.add_argument("--title", default=f"Cross-phenomenon overlap in BLiMP")
     p.add_argument("--add-model-markers", action="store_true")
+    p.add_argument("--percentage", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=42)
     args = p.parse_args()
 
@@ -221,6 +223,7 @@ def main():
         args.dataset.lower(),
         canonical_order,
         canonical_order,
+        args.percentage,
     )
     
     summary, per_model_within, per_model_outbound = aggregate_across_models(
@@ -236,6 +239,7 @@ def main():
         title=args.title,
         add_model_markers=args.add_model_markers,
         seed=args.seed,
+        percentage=args.percentage,
     )
 
 
